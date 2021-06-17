@@ -91,7 +91,7 @@ public class BeerRestController {
     }
 
     @PostMapping(path = "beer")
-    public ResponseEntity saveNewBeer(@Valid @RequestBody BeerDto beerDto){
+    public ResponseEntity<Void> saveNewBeer(@Valid @RequestBody BeerDto beerDto){
 
         BeerDto savedDto = beerService.saveBeer(beerDto);
 
@@ -100,11 +100,11 @@ public class BeerRestController {
         //todo hostname for uri
         httpHeaders.add("Location", "/api/v1/beer_service/" + savedDto.getId().toString());
 
-        return new ResponseEntity(httpHeaders, HttpStatus.CREATED);
+        return new ResponseEntity<>(httpHeaders, HttpStatus.CREATED);
     }
 
     @PutMapping(path = {"beer/{beerId}"}, produces = { "application/json" })
-    public ResponseEntity updateBeer(@PathVariable("beerId") UUID beerId, @Valid @RequestBody BeerDto beerDto){
+    public ResponseEntity<Void> updateBeer(@PathVariable("beerId") UUID beerId, @Valid @RequestBody BeerDto beerDto){
 
         beerService.updateBeer(beerId, beerDto);
 
@@ -119,7 +119,7 @@ public class BeerRestController {
 
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    ResponseEntity<List> badReqeustHandler(ConstraintViolationException e){
+    ResponseEntity<List<String>> badReqeustHandler(ConstraintViolationException e){
         List<String> errors = new ArrayList<>(e.getConstraintViolations().size());
 
         e.getConstraintViolations().forEach(constraintViolation -> {

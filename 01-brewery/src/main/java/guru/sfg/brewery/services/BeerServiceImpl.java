@@ -17,6 +17,17 @@
 
 package guru.sfg.brewery.services;
 
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
+import org.springframework.web.server.ResponseStatusException;
+
 import guru.sfg.brewery.domain.Beer;
 import guru.sfg.brewery.repositories.BeerRepository;
 import guru.sfg.brewery.web.mappers.BeerMapper;
@@ -25,16 +36,6 @@ import guru.sfg.brewery.web.model.BeerPagedList;
 import guru.sfg.brewery.web.model.BeerStyleEnum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -52,13 +53,13 @@ public class BeerServiceImpl implements BeerService {
         BeerPagedList beerPagedList;
         Page<Beer> beerPage;
 
-        if (!StringUtils.isEmpty(beerName) && !StringUtils.isEmpty(beerStyle)) {
+        if (!ObjectUtils.isEmpty(beerName) && !ObjectUtils.isEmpty(beerStyle)) {
             //search both
             beerPage = beerRepository.findAllByBeerNameAndBeerStyle(beerName, beerStyle, pageRequest);
-        } else if (!StringUtils.isEmpty(beerName) && StringUtils.isEmpty(beerStyle)) {
+        } else if (!ObjectUtils.isEmpty(beerName) && ObjectUtils.isEmpty(beerStyle)) {
             //search beer_service name
             beerPage = beerRepository.findAllByBeerName(beerName, pageRequest);
-        } else if (StringUtils.isEmpty(beerName) && !StringUtils.isEmpty(beerStyle)) {
+        } else if (ObjectUtils.isEmpty(beerName) && !ObjectUtils.isEmpty(beerStyle)) {
             //search beer_service style
             beerPage = beerRepository.findAllByBeerStyle(beerStyle, pageRequest);
         } else {

@@ -37,6 +37,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import guru.sfg.brewery.domain.Beer;
 import guru.sfg.brewery.repositories.BeerRepository;
+import guru.sfg.brewery.web.model.BeerStyleEnum;
 import lombok.RequiredArgsConstructor;
 
 
@@ -88,6 +89,7 @@ public class BeerController {
     @GetMapping("/new")
     public String initCreationForm(Model model) {
         model.addAttribute("beer", Beer.builder().build());
+        model.addAttribute("beerStyles", BeerStyleEnum.values());
         return "beers/createBeer";
     }
 

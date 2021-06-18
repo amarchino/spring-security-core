@@ -30,6 +30,14 @@ public class BeerControllerIT extends BaseIT {
             .andExpect(view().name("beers/createBeer"))
             .andExpect(model().attributeExists("beer"));
     }
+	
+	@Test
+    void initCreationFormScottTiger() throws Exception{
+    	mockMvc.perform(get("/beers/new").with(httpBasic("scott", "tiger")))
+            .andExpect(status().isOk())
+            .andExpect(view().name("beers/createBeer"))
+            .andExpect(model().attributeExists("beer"));
+    }
 
     @Test
     void findBeers() throws Exception{

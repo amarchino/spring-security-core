@@ -1,14 +1,11 @@
 package guru.sfg.brewery.web.controllers;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.LdapShaPasswordEncoder;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.crypto.password.StandardPasswordEncoder;
 import org.springframework.util.DigestUtils;
 
 public class PasswordEncodingTest {
@@ -24,16 +21,18 @@ public class PasswordEncodingTest {
 	}
 	
 	@Test
+	@SuppressWarnings("deprecation")
 	void testNoOp() {
-		PasswordEncoder noOp = NoOpPasswordEncoder.getInstance();
+		PasswordEncoder noOp = org.springframework.security.crypto.password.NoOpPasswordEncoder.getInstance();
 		String encodedPassword = noOp.encode(PASSWORD);
 		System.out.println("testNoOp: " + encodedPassword);
 		assertTrue(noOp.matches(PASSWORD, encodedPassword));
 	}
 	
 	@Test
+	@SuppressWarnings("deprecation")
 	void testLdap() {
-		PasswordEncoder ldap = new LdapShaPasswordEncoder();
+		PasswordEncoder ldap = new org.springframework.security.crypto.password.LdapShaPasswordEncoder();
 		System.out.println("testLdap: " + ldap.encode(PASSWORD));
 		String encodedPassword = ldap.encode(PASSWORD);
 		System.out.println("testLdap: " + encodedPassword);
@@ -42,8 +41,9 @@ public class PasswordEncodingTest {
 	}
 	
 	@Test
+	@SuppressWarnings("deprecation")
 	void testSha256() {
-		PasswordEncoder sha256 = new StandardPasswordEncoder();
+		PasswordEncoder sha256 = new org.springframework.security.crypto.password.StandardPasswordEncoder();
 		System.out.println("testSha256: " + sha256.encode(PASSWORD));
 		String encodedPassword = sha256.encode(PASSWORD);
 		System.out.println("testSha256: " + encodedPassword);
@@ -59,5 +59,15 @@ public class PasswordEncodingTest {
 		System.out.println("testBcrypt: " + encodedPassword);
 		
 		assertTrue(bcrypt.matches(PASSWORD, encodedPassword));
+	}
+	
+	@Test
+	void testDelegating() {
+		PasswordEncoder delegating = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+		System.out.println("testDelegating: " + delegating.encode(PASSWORD));
+		String encodedPassword = delegating.encode(PASSWORD);
+		System.out.println("testDelegating: " + encodedPassword);
+		
+		assertTrue(delegating.matches(PASSWORD, encodedPassword));
 	}
 }

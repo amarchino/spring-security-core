@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.core.log.LogMessage;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -36,11 +37,16 @@ public class RestHeaderAuthFilter extends AbstractAuthenticationProcessingFilter
 		if (this.logger.isDebugEnabled()) {
 			log.debug("Request is to process authentication");
 		}
-		Authentication authenticationResult = attemptAuthentication(request, response);
-		if(authenticationResult != null) {
-			successfulAuthentication(request, response, chain, authenticationResult);
-		} else {
-			chain.doFilter(request, response);
+		try {
+			Authentication authenticationResult = attemptAuthentication(request, response);
+			if(authenticationResult != null) {
+				successfulAuthentication(request, response, chain, authenticationResult);
+			} else {
+				chain.doFilter(request, response);
+			}
+		} catch(AuthenticationException e) {
+			log.error("Authentication failed", e);
+			unsuccessfulAuthentication(request, response, e);
 		}
 	}
 	
@@ -50,6 +56,14 @@ public class RestHeaderAuthFilter extends AbstractAuthenticationProcessingFilter
 		if (this.logger.isDebugEnabled()) {
 			this.logger.debug(LogMessage.format("Set SecurityContextHolder to %s", authResult));
 		}
+	}
+	
+	@Override
+	protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
+		SecurityContextHolder.clearContext();
+		this.logger.debug("Cleared SecurityContextHolder");
+		this.logger.debug("Handling authentication failure");
+		response.sendError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase());
 	}
 
 	@Override

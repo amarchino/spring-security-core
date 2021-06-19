@@ -13,14 +13,20 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import guru.sfg.brewery.security.RestHeaderAuthFilter;
+import guru.sfg.brewery.security.RestUrlParamAuthFilter;
 import guru.sfg.brewery.security.SfgPasswordEncoderFactory;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
-	public RestHeaderAuthFilter restHeaderAuthFilter(AuthenticationManager authenticationManager) {
+	private RestHeaderAuthFilter restHeaderAuthFilter(AuthenticationManager authenticationManager) {
 		RestHeaderAuthFilter filter = new RestHeaderAuthFilter(new AntPathRequestMatcher("/**"));
+		filter.setAuthenticationManager(authenticationManager);
+		return filter;
+	}
+	private RestUrlParamAuthFilter restUrlParamAuthFilter(AuthenticationManager authenticationManager) {
+		RestUrlParamAuthFilter filter = new RestUrlParamAuthFilter(new AntPathRequestMatcher("/**"));
 		filter.setAuthenticationManager(authenticationManager);
 		return filter;
 	}
@@ -28,6 +34,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.addFilterBefore(restHeaderAuthFilter(authenticationManager()), UsernamePasswordAuthenticationFilter.class);
+		http.addFilterBefore(restUrlParamAuthFilter(authenticationManager()), UsernamePasswordAuthenticationFilter.class);
 		
 		http.csrf().disable();
 		http.authorizeRequests(requests ->

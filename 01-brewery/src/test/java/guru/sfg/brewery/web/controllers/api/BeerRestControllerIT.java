@@ -1,5 +1,6 @@
 package guru.sfg.brewery.web.controllers.api;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -40,5 +41,20 @@ public class BeerRestControllerIT extends BaseIT {
 			.header("Api-Secret", "guru")
 		)
 		.andExpect(status().isOk());
+	}
+	@Test
+	void deleteBeerHttpBasic() throws Exception {
+		mockMvc.perform(
+			delete("/api/v1/beer/" + UUID.randomUUID())
+			.with(httpBasic("spring", "guru"))
+		)
+		.andExpect(status().is2xxSuccessful());
+	}
+	@Test
+	void deleteBeerNoAuth() throws Exception {
+		mockMvc.perform(
+			delete("/api/v1/beer/" + UUID.randomUUID())
+		)
+		.andExpect(status().isUnauthorized());
 	}
 }

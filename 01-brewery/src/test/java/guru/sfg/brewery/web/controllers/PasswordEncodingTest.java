@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.LdapShaPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -48,5 +49,15 @@ public class PasswordEncodingTest {
 		System.out.println("testSha256: " + encodedPassword);
 		
 		assertTrue(sha256.matches(PASSWORD, encodedPassword));
+	}
+	
+	@Test
+	void testBcrypt() {
+		PasswordEncoder bcrypt = new BCryptPasswordEncoder(14);
+		System.out.println("testBcrypt: " + bcrypt.encode(PASSWORD));
+		String encodedPassword = bcrypt.encode(PASSWORD);
+		System.out.println("testBcrypt: " + encodedPassword);
+		
+		assertTrue(bcrypt.matches(PASSWORD, encodedPassword));
 	}
 }

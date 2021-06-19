@@ -1,5 +1,6 @@
 package guru.sfg.brewery.web.controllers.api;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -29,5 +30,15 @@ public class BeerRestControllerIT extends BaseIT {
 	void findBeerByUpc() throws Exception {
 		mockMvc.perform(get("/api/v1/beerUpc/0631234200036"))
 			.andExpect(status().isOk());
+	}
+	
+	@Test
+	void deleteBeer() throws Exception {
+		mockMvc.perform(
+			delete("/api/v1/beer/" + UUID.randomUUID())
+			.header("Api-Key", "spring")
+			.header("Api-Secret", "guru")
+		)
+		.andExpect(status().isOk());
 	}
 }

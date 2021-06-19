@@ -33,11 +33,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		PasswordEncoder encoder = passwordEncoder();
 		auth.inMemoryAuthentication()
 			.withUser("spring")
-			.password(encoder.encode("guru"))
+			//.password(encoder.encode("guru"))
+			.password("{ldap}{SSHA}TeIPoQ1l74LT8Lvf8EzQrLWxUwH1LEdCWndc4w==")
 			.roles("ADMIN")
 			.and()
 			.withUser("user")
-			.password(encoder.encode("password"))
+			//.password(encoder.encode("password"))
+			.password("{noop}password")
 			.roles("USER");
 		auth.inMemoryAuthentication().withUser("scott").password(encoder.encode("tiger")).roles("CUSTOMER");
 	}

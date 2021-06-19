@@ -8,6 +8,8 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.DigestUtils;
 
+import guru.sfg.brewery.security.SfgPasswordSecurityFactory;
+
 public class PasswordEncodingTest {
 	static final String PASSWORD = "password";
 	
@@ -33,7 +35,7 @@ public class PasswordEncodingTest {
 	@SuppressWarnings("deprecation")
 	void testLdap() {
 		PasswordEncoder ldap = new org.springframework.security.crypto.password.LdapShaPasswordEncoder();
-		System.out.println("testLdap: " + ldap.encode(PASSWORD));
+		System.out.println("testLdap: " + ldap.encode("guru"));
 		String encodedPassword = ldap.encode(PASSWORD);
 		System.out.println("testLdap: " + encodedPassword);
 		
@@ -67,6 +69,16 @@ public class PasswordEncodingTest {
 		System.out.println("testDelegating: " + delegating.encode(PASSWORD));
 		String encodedPassword = delegating.encode(PASSWORD);
 		System.out.println("testDelegating: " + encodedPassword);
+		
+		assertTrue(delegating.matches(PASSWORD, encodedPassword));
+	}
+	
+	@Test
+	void testCustomDelegating() {
+		PasswordEncoder delegating = SfgPasswordSecurityFactory.createDelegatingPasswordEncoder();
+		System.out.println("testCustomDelegating: " + delegating.encode(PASSWORD));
+		String encodedPassword = delegating.encode(PASSWORD);
+		System.out.println("testCustomDelegating: " + encodedPassword);
 		
 		assertTrue(delegating.matches(PASSWORD, encodedPassword));
 	}

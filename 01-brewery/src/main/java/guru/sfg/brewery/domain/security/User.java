@@ -11,7 +11,19 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.Singular;
+
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@Builder
 public class User {
 	
 	@Id
@@ -19,15 +31,21 @@ public class User {
 	private Integer id;
 	private String username;
 	private String password;
+	
+	@Singular
 	@ManyToMany(cascade = CascadeType.MERGE)
 	@JoinTable(name = "user_authority",
 		joinColumns = @JoinColumn(name = "USER_ID", referencedColumnName = "ID"),
 		inverseJoinColumns = @JoinColumn(name = "AUTHORITY_ID", referencedColumnName = "ID"))
 	private Set<Authority> authorities;
 
+	@Builder.Default
 	private Boolean accountNonExpired = Boolean.TRUE;
+	@Builder.Default
 	private Boolean accountNonLocked = Boolean.TRUE;
+	@Builder.Default
 	private Boolean credentialsNonExpired = Boolean.TRUE;
+	@Builder.Default
 	private Boolean enabled = Boolean.TRUE;
 
 }

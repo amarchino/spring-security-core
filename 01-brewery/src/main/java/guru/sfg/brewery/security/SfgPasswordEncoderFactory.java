@@ -7,10 +7,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import lombok.experimental.UtilityClass;
-
-@UtilityClass
-public class SfgPasswordSecurityFactory {
+public class SfgPasswordEncoderFactory {
 
 	@SuppressWarnings("deprecation")
 	public static PasswordEncoder createDelegatingPasswordEncoder() {

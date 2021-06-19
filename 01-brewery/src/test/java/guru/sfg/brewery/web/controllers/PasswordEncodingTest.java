@@ -8,7 +8,7 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.DigestUtils;
 
-import guru.sfg.brewery.security.SfgPasswordSecurityFactory;
+import guru.sfg.brewery.security.SfgPasswordEncoderFactory;
 
 public class PasswordEncodingTest {
 	static final String PASSWORD = "password";
@@ -75,7 +75,7 @@ public class PasswordEncodingTest {
 	
 	@Test
 	void testCustomDelegating() {
-		PasswordEncoder delegating = SfgPasswordSecurityFactory.createDelegatingPasswordEncoder();
+		PasswordEncoder delegating = SfgPasswordEncoderFactory.createDelegatingPasswordEncoder();
 		System.out.println("testCustomDelegating: " + delegating.encode(PASSWORD));
 		String encodedPassword = delegating.encode(PASSWORD);
 		System.out.println("testCustomDelegating: " + encodedPassword);

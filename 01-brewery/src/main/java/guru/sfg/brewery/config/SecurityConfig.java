@@ -9,7 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import guru.sfg.brewery.security.SfgPasswordSecurityFactory;
+import guru.sfg.brewery.security.SfgPasswordEncoderFactory;
 
 @Configuration
 @EnableWebSecurity
@@ -64,7 +64,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Bean
 	PasswordEncoder passwordEncoder() {
-		return SfgPasswordSecurityFactory.createDelegatingPasswordEncoder();
+		return SfgPasswordEncoderFactory.createDelegatingPasswordEncoder();
 	}
 	
 }

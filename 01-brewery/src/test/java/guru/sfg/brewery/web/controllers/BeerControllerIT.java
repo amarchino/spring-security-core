@@ -13,14 +13,14 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import guru.sfg.brewery.domain.Beer;
 
 /**
  * Created by jt on 6/12/20.
  */
-@WebMvcTest
+@SpringBootTest
 public class BeerControllerIT extends BaseIT {
 	
 	@Test

@@ -54,9 +54,9 @@ public class UserDataLoader implements CommandLineRunner {
 	}
 
 	private void addUsers() {
-		addUser("spring", "guru", "ROLE_ADMIN");
-		addUser("user", "password", "ROLE_USER");
-		addUser("scott", "tiger", "ROLE_CUSTOMER");
+		addUser("spring", "guru", "ADMIN");
+		addUser("user", "password", "USER");
+		addUser("scott", "tiger", "CUSTOMER");
 	}
 
 	private User addUser(String username, String password, String... roles) {

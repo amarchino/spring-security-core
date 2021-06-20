@@ -8,7 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 public class IndexControllerIT extends BaseIT {
-
+	
 	@Test
 	void testGetIndexSlash() throws Exception {
 		mockMvc.perform(get("/"))

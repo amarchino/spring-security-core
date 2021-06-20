@@ -34,8 +34,8 @@ public abstract class AbstractRestAuthFilter extends AbstractAuthenticationProce
 	}
 
 	private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-		if (this.logger.isDebugEnabled()) {
-			log.debug("Request is to process authentication");
+		if (this.logger.isTraceEnabled()) {
+			log.trace("Request is to process authentication");
 		}
 		try {
 			Authentication authenticationResult = attemptAuthentication(request, response);
@@ -53,16 +53,16 @@ public abstract class AbstractRestAuthFilter extends AbstractAuthenticationProce
 	@Override
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
 		SecurityContextHolder.getContext().setAuthentication(authResult);
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug(LogMessage.format("Set SecurityContextHolder to %s", authResult));
+		if (this.logger.isTraceEnabled()) {
+			this.logger.trace(LogMessage.format("Set SecurityContextHolder to %s", authResult));
 		}
 	}
 	
 	@Override
 	protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
 		SecurityContextHolder.clearContext();
-		this.logger.debug("Cleared SecurityContextHolder");
-		this.logger.debug("Handling authentication failure");
+		this.logger.trace("Cleared SecurityContextHolder");
+		this.logger.trace("Handling authentication failure");
 		response.sendError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase());
 	}
 
@@ -77,7 +77,7 @@ public abstract class AbstractRestAuthFilter extends AbstractAuthenticationProce
 		if(password == null) {
 			password = "";
 		}
-		log.debug("Authenticating user: " + userName);
+		log.trace("Authenticating user: " + userName);
 		
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userName, password);
 		if(!ObjectUtils.isEmpty(userName)) {

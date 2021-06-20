@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Component
 @Slf4j
-public class AuthLoader implements CommandLineRunner {
+public class UserDataLoader implements CommandLineRunner {
 	
 	private final UserRepository userRepository;
 	private final AuthorityRepository authorityRepository;
@@ -38,9 +38,9 @@ public class AuthLoader implements CommandLineRunner {
     }
 
 	private void addAuthorities() {
-		autorities.put("ADMIN", addAuthority("ADMIN"));
-		autorities.put("USER", addAuthority("USER"));
-		autorities.put("CUSTOMER", addAuthority("CUSTOMER"));
+		autorities.put("ADMIN", addAuthority("ROLE_ADMIN"));
+		autorities.put("USER", addAuthority("ROLE_USER"));
+		autorities.put("CUSTOMER", addAuthority("ROLE_CUSTOMER"));
 	}
 	
 	private Authority addAuthority(String role) {
@@ -54,9 +54,9 @@ public class AuthLoader implements CommandLineRunner {
 	}
 
 	private void addUsers() {
-		addUser("spring", "guru", "ADMIN");
-		addUser("user", "password", "USER");
-		addUser("scott", "tiger", "CUSTOMER");
+		addUser("spring", "guru", "ROLE_ADMIN");
+		addUser("user", "password", "ROLE_USER");
+		addUser("scott", "tiger", "ROLE_CUSTOMER");
 	}
 
 	private User addUser(String username, String password, String... roles) {

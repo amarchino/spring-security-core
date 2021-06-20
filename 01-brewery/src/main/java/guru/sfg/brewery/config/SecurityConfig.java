@@ -52,6 +52,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers(HttpMethod.GET, "/api/v1/beer/**").permitAll()
 				.mvcMatchers(HttpMethod.DELETE, "/api/v1/beer/**").hasRole("ADMIN")
 				.mvcMatchers(HttpMethod.GET, "/api/v1/beerUpc/{upc}").permitAll()
+				
+				.antMatchers(HttpMethod.GET, "/brewery/breweries/**").hasRole("CUSTOMER")
+				.antMatchers(HttpMethod.GET, "/brewery/api/v1/breweries/**").hasRole("CUSTOMER")
 		);
 		http.authorizeRequests(requests -> requests.anyRequest().authenticated());
 		http.formLogin();

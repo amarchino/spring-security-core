@@ -38,7 +38,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		
 		http.csrf().disable();
 		http.authorizeRequests(requests ->
-			requests.antMatchers("/", "/webjars/**", "/resources/**").permitAll()
+			requests
+				.antMatchers("/h2-console/**").permitAll() // do not use in production
+				.antMatchers("/", "/webjars/**", "/resources/**").permitAll()
 				.antMatchers("/beers/find", "/beers*").permitAll()
 				.antMatchers(HttpMethod.GET, "/api/v1/beer/**").permitAll()
 				.mvcMatchers(HttpMethod.GET, "/api/v1/beerUpc/{upc}").permitAll()
@@ -46,6 +48,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		http.authorizeRequests(requests -> requests.anyRequest().authenticated());
 		http.formLogin();
 		http.httpBasic();
+		// H2 console config
+		http.headers().frameOptions(fo -> fo.sameOrigin());
 	}
 	
 	@Override

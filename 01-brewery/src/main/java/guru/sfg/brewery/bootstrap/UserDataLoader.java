@@ -38,11 +38,15 @@ public class UserDataLoader implements CommandLineRunner {
     public void run(String... args) {
 		// Authorities
 		Stream.of(BeerAuthorities.values()).forEach(this::addAuthority);
+		Stream.of(BreweryAuthorities.values()).forEach(this::addAuthority);
+		Stream.of(CustomerAuthorities.values()).forEach(this::addAuthority);
 		log.debug("Authorities loaded: " + authorityRepository.count());
 		
 		// Roles
-		addRole(Roles.ADMIN, BeerAuthorities.CREATE, BeerAuthorities.READ, BeerAuthorities.UPDATE, BeerAuthorities.DELETE);
-		addRole(Roles.CUSTOMER, BeerAuthorities.READ);
+		addRole(Roles.ADMIN, BeerAuthorities.CREATE, BeerAuthorities.READ, BeerAuthorities.UPDATE, BeerAuthorities.DELETE,
+				BreweryAuthorities.CREATE, BreweryAuthorities.READ, BreweryAuthorities.UPDATE, BreweryAuthorities.DELETE,
+				CustomerAuthorities.CREATE, CustomerAuthorities.READ, CustomerAuthorities.UPDATE, CustomerAuthorities.DELETE);
+		addRole(Roles.CUSTOMER, BeerAuthorities.READ, CustomerAuthorities.READ, BreweryAuthorities.READ);
 		addRole(Roles.USER, BeerAuthorities.READ);
 		log.debug("Roles loaded: " + roleRepository.count());
 		
@@ -57,7 +61,7 @@ public class UserDataLoader implements CommandLineRunner {
 	private Authority addAuthority(ValuedEnum authorityEnum) {
 		Optional<Authority> savedAuthority = authorityRepository.findByPermission(authorityEnum.value());
 		if(savedAuthority.isPresent()) {
-			log.debug("Authority " + authorityEnum + " already present");
+			log.debug("Authority " + authorityEnum.asString() + " already present");
 			return savedAuthority.get();
 		}
 		log.debug("Authority " + authorityEnum + " created");
@@ -69,7 +73,7 @@ public class UserDataLoader implements CommandLineRunner {
 	private Role addRole(ValuedEnum roleEnum, ValuedEnum... authorityValues) {
 		Optional<Role> savedRole = roleRepository.findByName(roleEnum.value());
 		if(savedRole.isPresent()) {
-			log.debug("Role " + roleEnum + " already present");
+			log.debug("Role " + roleEnum.asString() + " already present");
 			return savedRole.get();
 		}
 		log.debug("Role " + roleEnum + " created");
@@ -98,17 +102,34 @@ public class UserDataLoader implements CommandLineRunner {
 	}
 	
 	private static interface ValuedEnum {
-		String value();
+		default String value() {
+			return type() + "." + name().toLowerCase();
+		}
+		String name();
+		String type();
+		default String asString() {
+			return type() + "." + name();
+		}
 	}
 	private static enum BeerAuthorities implements ValuedEnum {
 		CREATE, UPDATE, READ, DELETE;
 		@Override
-		public String value() {
-			return "beer." + name().toLowerCase();
+		public String type() {
+			return "beer";
 		}
+	}
+	private static enum CustomerAuthorities implements ValuedEnum {
+		CREATE, UPDATE, READ, DELETE;
 		@Override
-		public String toString() {
-			return getClass().getSimpleName() + "." + name();
+		public String type() {
+			return "customer";
+		}
+	}
+	private static enum BreweryAuthorities implements ValuedEnum {
+		CREATE, UPDATE, READ, DELETE;
+		@Override
+		public String type() {
+			return "brewery";
 		}
 	}
 	private static enum Roles implements ValuedEnum {
@@ -118,8 +139,8 @@ public class UserDataLoader implements CommandLineRunner {
 			return name();
 		}
 		@Override
-		public String toString() {
-			return getClass().getSimpleName() + "." + name();
+		public String type() {
+			return "";
 		}
 	}
 }

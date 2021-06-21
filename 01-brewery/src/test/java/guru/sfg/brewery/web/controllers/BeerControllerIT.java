@@ -31,11 +31,17 @@ public class BeerControllerIT extends BaseIT {
 	class InitNewForm {
 		@ParameterizedTest(name = "#{index} with [{arguments}]")
 		@MethodSource("guru.sfg.brewery.web.controllers.BeerControllerIT#getStreamAllUsers")
-	    void initCreationForm(String user, String pwd) throws Exception{
-	    	mockMvc.perform(get("/beers/new").with(httpBasic(user, pwd)))
+	    void initCreationFormAdmin(String user, String pwd) throws Exception{
+	    	mockMvc.perform(get("/beers/new").with(httpBasic("spring", "guru")))
 	            .andExpect(status().isOk())
 	            .andExpect(view().name("beers/createBeer"))
 	            .andExpect(model().attributeExists("beer"));
+	    }
+		@ParameterizedTest(name = "#{index} with [{arguments}]")
+		@MethodSource("guru.sfg.brewery.web.controllers.BeerControllerIT#getStreamNotAdmin")
+	    void initCreationFormNONAdmin(String user, String pwd) throws Exception{
+	    	mockMvc.perform(get("/beers/new").with(httpBasic(user, pwd)))
+	            .andExpect(status().isForbidden());
 	    }
 		@Test
 	    void initCreationFormNoAuth() throws Exception{

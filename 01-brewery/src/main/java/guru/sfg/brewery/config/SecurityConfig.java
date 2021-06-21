@@ -2,7 +2,6 @@ package guru.sfg.brewery.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -50,13 +49,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			requests
 				.antMatchers("/h2-console/**").permitAll() // do not use in production
 				.antMatchers("/", "/webjars/**", "/login", "/resources/**").permitAll()
-				
-				.antMatchers(HttpMethod.GET, "/brewery/breweries/**").hasAnyRole("ADMIN", "CUSTOMER")
-				.antMatchers(HttpMethod.GET, "/brewery/api/v1/breweries/**").hasAnyRole("ADMIN", "CUSTOMER")
-				
-				.mvcMatchers("/beers/find", "/beers/{beerId}").hasAnyRole("ADMIN", "CUSTOMER", "USER")
+				.anyRequest().authenticated()
 		);
-		http.authorizeRequests(requests -> requests.anyRequest().authenticated());
 		http.formLogin();
 		http.httpBasic();
 		// H2 console config

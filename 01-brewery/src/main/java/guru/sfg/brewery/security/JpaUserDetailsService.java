@@ -1,6 +1,7 @@
 package guru.sfg.brewery.security;
 
 import java.util.Collections;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -27,6 +28,7 @@ public class JpaUserDetailsService implements UserDetailsService {
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		log.debug("Setting User info via JPA");
 		User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User name: " + username + " not found"));
+		Set<Authority> authorities = user.getAuthorities();
 		return new org.springframework.security.core.userdetails.User(
 				user.getUsername(),
 				user.getPassword(),
@@ -34,10 +36,10 @@ public class JpaUserDetailsService implements UserDetailsService {
 				Boolean.TRUE.equals(user.getAccountNonExpired()),
 				Boolean.TRUE.equals(user.getCredentialsNonExpired()),
 				Boolean.TRUE.equals(user.getAccountNonLocked()),
-				user.getAuthorities() != null && !user.getAuthorities().isEmpty()
-					? user.getAuthorities()
+				authorities != null && !authorities.isEmpty()
+					? authorities
 						.stream()
-						.map(Authority::getRole)
+						.map(Authority::getPermission)
 						.map(SimpleGrantedAuthority::new)
 						.collect(Collectors.toSet())
 					: Collections.emptySet());

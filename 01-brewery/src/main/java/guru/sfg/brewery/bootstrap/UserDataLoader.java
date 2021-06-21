@@ -50,7 +50,7 @@ public class UserDataLoader implements CommandLineRunner {
 			return savedAuthority.get();
 		}
 		log.debug("Role " + role + " created");
-		return authorityRepository.save(Authority.builder().role(role).build());
+		return authorityRepository.save(Authority.builder().permission(role).build());
 	}
 
 	private void addUsers() {
@@ -70,7 +70,7 @@ public class UserDataLoader implements CommandLineRunner {
 			.username(username)
 			.password(passwordEncoder.encode(password));
 		for(String role : roles) {
-			builder = builder.authority(autorities.get(role));
+//			builder = builder.authority(autorities.get(role));
 		}
 		
 		return userRepository.save(builder.build());

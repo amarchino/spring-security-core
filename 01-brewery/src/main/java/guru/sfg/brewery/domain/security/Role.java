@@ -1,7 +1,6 @@
 package guru.sfg.brewery.domain.security;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -26,36 +25,18 @@ import lombok.Singular;
 @Getter
 @Setter
 @Builder
-public class User {
-	
+public class Role {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
-	private String username;
-	private String password;
-	
+	private String name;
+	@ManyToMany(mappedBy = "roles")
+	private Set<User> users;
 	@Singular
 	@ManyToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST }, fetch = FetchType.EAGER)
-	@JoinTable(name = "user_role",
-		joinColumns = @JoinColumn(name = "USER_ID", referencedColumnName = "ID"),
-		inverseJoinColumns = @JoinColumn(name = "ROLE_ID", referencedColumnName = "ID"))
-	private Set<Role> roles;
-
-	@Builder.Default
-	private Boolean accountNonExpired = Boolean.TRUE;
-	@Builder.Default
-	private Boolean accountNonLocked = Boolean.TRUE;
-	@Builder.Default
-	private Boolean credentialsNonExpired = Boolean.TRUE;
-	@Builder.Default
-	private Boolean enabled = Boolean.TRUE;
-	
-	public Set<Authority> getAuthorities() {
-		return this.roles
-			.stream()
-			.map(Role::getAuthorities)
-			.flatMap(Set::stream)
-			.collect(Collectors.toSet());
-	}
-
+	@JoinTable(name = "role_authority",
+		joinColumns = @JoinColumn(name = "ROLE_ID", referencedColumnName = "ID"),
+		inverseJoinColumns = @JoinColumn(name = "AUTHORITY_ID", referencedColumnName = "ID"))
+	private Set<Authority> authorities;
 }

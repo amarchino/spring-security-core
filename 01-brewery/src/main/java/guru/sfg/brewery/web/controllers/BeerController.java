@@ -118,6 +118,7 @@ public class BeerController {
     @BeerUpdatePermission
     @GetMapping("/{beerId}/edit")
     public String initUpdateBeerForm(@PathVariable UUID beerId, Model model) {
+    	model.addAttribute("beerStyles", BeerStyleEnum.values());
         if (beerRepository.findById(beerId).isPresent())
             model.addAttribute("beer", beerRepository.findById(beerId).get());
         return "beers/createOrUpdateBeer";

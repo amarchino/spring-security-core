@@ -1,8 +1,10 @@
 package guru.sfg.brewery.web.controllers;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
@@ -14,9 +16,11 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 
 import guru.sfg.brewery.domain.Beer;
 import guru.sfg.brewery.repositories.BeerRepository;
+import guru.sfg.brewery.web.model.BeerStyleEnum;
 
 /**
  * Created by jt on 6/12/20.
@@ -108,6 +112,55 @@ public class BeerControllerIT extends BaseIT {
 
             mockMvc.perform(get("/beers/" + beer.getId()))
                     .andExpect(status().isUnauthorized());
+        }
+    }
+	
+	@DisplayName("Add Beer")
+    @Nested
+    class AddBeers {
+
+        @Rollback
+        @Test
+        void processCreationForm() throws Exception{
+            mockMvc.perform(post("/beers/new")
+                    .param("beerName", "Foo Beer")
+                    .param("beerStyle", BeerStyleEnum.ALE.toString())
+                    .param("upc", "1234567890")
+                    .param("minOnHand", "12")
+                    .param("quantityToBrew", "250")
+                    .param("price", "2")
+                    .with(csrf())
+                    .with(httpBasic("spring", "guru")))
+                .andExpect(status().is3xxRedirection());
+        }
+
+        @Rollback
+        @ParameterizedTest(name = "#{index} with [{arguments}]")
+        @MethodSource("guru.sfg.brewery.web.controllers.CustomerControllerIT#getStreamNotAdmin")
+        void processCreationFormNOTAUTH(String user, String pwd) throws Exception{
+            mockMvc.perform(post("/beers/new")
+            		.with(csrf())
+            		.param("beerName", "Foo Beer")
+                    .param("beerStyle", BeerStyleEnum.ALE.toString())
+                    .param("upc", "1234567890")
+                    .param("minOnHand", "12")
+                    .param("quantityToBrew", "250")
+                    .param("price", "2")
+                    .with(httpBasic(user, pwd)))
+                .andExpect(status().isForbidden());
+        }
+
+        @Test
+        void processCreationFormNOAUTH() throws Exception{
+            mockMvc.perform(post("/beers/new")
+            		.with(csrf())
+            		.param("beerName", "Foo Beer")
+                    .param("beerStyle", BeerStyleEnum.ALE.toString())
+                    .param("upc", "1234567890")
+                    .param("minOnHand", "12")
+                    .param("quantityToBrew", "250")
+                    .param("price", "2"))
+                .andExpect(status().isUnauthorized());
         }
     }
 }

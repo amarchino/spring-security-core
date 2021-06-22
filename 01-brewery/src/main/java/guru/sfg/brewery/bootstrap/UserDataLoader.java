@@ -40,13 +40,17 @@ public class UserDataLoader implements CommandLineRunner {
 		Stream.of(BeerAuthorities.values()).forEach(this::addAuthority);
 		Stream.of(BreweryAuthorities.values()).forEach(this::addAuthority);
 		Stream.of(CustomerAuthorities.values()).forEach(this::addAuthority);
+		Stream.of(BeerOrderAuthorities.values()).forEach(this::addAuthority);
+		Stream.of(CustomerBeerOrderAuthorities.values()).forEach(this::addAuthority);
 		log.debug("Authorities loaded: " + authorityRepository.count());
 		
 		// Roles
 		addRole(Roles.ADMIN, BeerAuthorities.CREATE, BeerAuthorities.READ, BeerAuthorities.UPDATE, BeerAuthorities.DELETE,
 				BreweryAuthorities.CREATE, BreweryAuthorities.READ, BreweryAuthorities.UPDATE, BreweryAuthorities.DELETE,
-				CustomerAuthorities.CREATE, CustomerAuthorities.READ, CustomerAuthorities.UPDATE, CustomerAuthorities.DELETE);
-		addRole(Roles.CUSTOMER, BeerAuthorities.READ, CustomerAuthorities.READ, BreweryAuthorities.READ);
+				CustomerAuthorities.CREATE, CustomerAuthorities.READ, CustomerAuthorities.UPDATE, CustomerAuthorities.DELETE,
+				BeerOrderAuthorities.CREATE, BeerOrderAuthorities.READ, BeerOrderAuthorities.UPDATE, BeerOrderAuthorities.DELETE);
+		addRole(Roles.CUSTOMER, BeerAuthorities.READ, CustomerAuthorities.READ, BreweryAuthorities.READ,
+				CustomerBeerOrderAuthorities.CREATE, CustomerBeerOrderAuthorities.READ, CustomerBeerOrderAuthorities.UPDATE, CustomerBeerOrderAuthorities.DELETE);
 		addRole(Roles.USER, BeerAuthorities.READ);
 		log.debug("Roles loaded: " + roleRepository.count());
 		
@@ -130,6 +134,20 @@ public class UserDataLoader implements CommandLineRunner {
 		@Override
 		public String type() {
 			return "brewery";
+		}
+	}
+	private static enum BeerOrderAuthorities implements ValuedEnum {
+		CREATE, UPDATE, READ, DELETE;
+		@Override
+		public String type() {
+			return "order";
+		}
+	}
+	private static enum CustomerBeerOrderAuthorities implements ValuedEnum {
+		CREATE, UPDATE, READ, DELETE;
+		@Override
+		public String type() {
+			return "customer.order";
 		}
 	}
 	private static enum Roles implements ValuedEnum {

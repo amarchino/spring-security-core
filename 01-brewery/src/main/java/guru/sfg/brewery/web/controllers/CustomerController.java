@@ -111,7 +111,7 @@ public class CustomerController {
    }
 
     @CustomerUpdatePermission
-    @PostMapping("/{beerId}/edit")
+    @PostMapping("/{customerId}/edit")
     public String processUpdationForm(@Valid Customer customer, BindingResult result) {
         if (result.hasErrors()) {
             return "beers/createOrUpdateCustomer";

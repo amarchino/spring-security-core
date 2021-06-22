@@ -106,6 +106,12 @@ public class BeerOrderServiceImpl implements BeerOrderService {
     public BeerOrderDto getOrderById(UUID customerId, UUID orderId) {
         return beerOrderMapper.beerOrderToDto(getOrder(customerId, orderId));
     }
+    
+    @Override
+    public BeerOrderDto getOrderById(UUID orderId) {
+    	Optional<BeerOrder> beerOrder = beerOrderRepository.findOrderByIdSecure(orderId);
+        return beerOrder.map(beerOrderMapper::beerOrderToDto).orElse(null);
+    }
 
     @Override
     public void pickupOrder(UUID customerId, UUID orderId) {

@@ -6,7 +6,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -89,9 +88,8 @@ class BeerOrderControllerV2Test extends BaseIT {
 
     @DisplayName("Get Test")
 	@Nested
+	@Transactional
 	class GetOrderTests {
-	    @Disabled
-	    @Transactional
 	    @Test
 	    void getByOrderIdNotAuth() throws Exception {
 	        BeerOrder beerOrder = stPeteCustomer.getBeerOrders().stream().findFirst().orElseThrow();
@@ -100,8 +98,6 @@ class BeerOrderControllerV2Test extends BaseIT {
 	                .andExpect(status().isUnauthorized());
 	    }
 	
-	    @Disabled
-	    @Transactional
 	    @WithUserDetails("spring")
 	    @Test
 	    void getByOrderIdADMIN() throws Exception {
@@ -111,8 +107,6 @@ class BeerOrderControllerV2Test extends BaseIT {
 	                .andExpect(status().is2xxSuccessful());
 	    }
 	
-	    @Disabled
-	    @Transactional
 	    @WithUserDetails(DefaultBreweryLoader.STPETE_USER)
 	    @Test
 	    void getByOrderIdCustomerAuth() throws Exception {
@@ -122,15 +116,13 @@ class BeerOrderControllerV2Test extends BaseIT {
 	                .andExpect(status().is2xxSuccessful());
 	    }
 	
-	    @Disabled
-	    @Transactional
 	    @WithUserDetails(DefaultBreweryLoader.DUNEDIN_USER)
 	    @Test
 	    void getByOrderIdCustomerNOTAuth() throws Exception {
 	        BeerOrder beerOrder = stPeteCustomer.getBeerOrders().stream().findFirst().orElseThrow();
 	
 	        mockMvc.perform(get(API_ROOT + beerOrder.getId()))
-	                .andExpect(status().isForbidden());
+	                .andExpect(status().isNotFound());
 	    }
     }
 }

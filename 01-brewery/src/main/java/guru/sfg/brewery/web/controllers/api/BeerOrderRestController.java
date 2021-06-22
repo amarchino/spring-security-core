@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/v1/customers/{customerId}/")
 @RestController
 @RequiredArgsConstructor
-public class BeerOrderController {
+public class BeerOrderRestController {
 
 	private static final Integer DEFAULT_PAGE_NUMBER = 0;
 	private static final Integer DEFAULT_PAGE_SIZE = 25;

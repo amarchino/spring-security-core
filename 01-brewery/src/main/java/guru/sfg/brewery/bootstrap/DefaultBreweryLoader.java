@@ -55,9 +55,14 @@ import lombok.extern.slf4j.Slf4j;
 public class DefaultBreweryLoader implements CommandLineRunner {
 
     public static final String TASTING_ROOM = "Tasting Room";
+
     public static final String ST_PETE_DISTRIBUTING = "St Pete Distributing";
     public static final String DUNEDIN_DISTRIBUTING = "Dunedin Distributing";
     public static final String KEY_WEST_DISTRIBUTING = "Key West Distributing";
+    
+    public static final String STPETE_USER = "stpete";
+    public static final String DUNEDIN_USER = "dunedin";
+    public static final String KEYWEST_USER = "keywest";
     
     public static final String BEER_1_UPC = "0631234200036";
     public static final String BEER_2_UPC = "0631234300019";
@@ -161,9 +166,9 @@ public class DefaultBreweryLoader implements CommandLineRunner {
     	Customer keyWestCustomer = createCustomer(KEY_WEST_DISTRIBUTING);
     	
     	// Create user
-    	User stPeteUser = createUser("stpete", "password", stPeteCustomer, customerRole);
-    	User dunedinUser = createUser("dunedin", "password", dunedinCustomer, customerRole);
-    	User keyWestUser = createUser("keywest", "password", keyWestCustomer, customerRole);
+    	User stPeteUser = createUser(STPETE_USER, "password", stPeteCustomer, customerRole);
+    	User dunedinUser = createUser(DUNEDIN_USER, "password", dunedinCustomer, customerRole);
+    	User keyWestUser = createUser(KEYWEST_USER, "password", keyWestCustomer, customerRole);
     	
     	// Create order
     	createOrder(stPeteCustomer);

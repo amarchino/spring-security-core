@@ -16,15 +16,33 @@
  */
 package guru.sfg.brewery.bootstrap;
 
-import guru.sfg.brewery.domain.*;
-import guru.sfg.brewery.repositories.*;
-import guru.sfg.brewery.web.model.BeerStyleEnum;
-import lombok.RequiredArgsConstructor;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
-
 import java.util.Set;
 import java.util.UUID;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
+
+import guru.sfg.brewery.domain.Beer;
+import guru.sfg.brewery.domain.BeerInventory;
+import guru.sfg.brewery.domain.BeerOrder;
+import guru.sfg.brewery.domain.BeerOrderLine;
+import guru.sfg.brewery.domain.Brewery;
+import guru.sfg.brewery.domain.Customer;
+import guru.sfg.brewery.domain.OrderStatusEnum;
+import guru.sfg.brewery.domain.security.Role;
+import guru.sfg.brewery.domain.security.User;
+import guru.sfg.brewery.repositories.BeerInventoryRepository;
+import guru.sfg.brewery.repositories.BeerOrderRepository;
+import guru.sfg.brewery.repositories.BeerRepository;
+import guru.sfg.brewery.repositories.BreweryRepository;
+import guru.sfg.brewery.repositories.CustomerRepository;
+import guru.sfg.brewery.repositories.security.RoleRepository;
+import guru.sfg.brewery.repositories.security.UserRepository;
+import guru.sfg.brewery.web.model.BeerStyleEnum;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 
 /**
@@ -32,26 +50,37 @@ import java.util.UUID;
  */
 @RequiredArgsConstructor
 @Component
+@Order(2)
+@Slf4j
 public class DefaultBreweryLoader implements CommandLineRunner {
 
     public static final String TASTING_ROOM = "Tasting Room";
+    public static final String ST_PETE_DISTRIBUTING = "St Pete Distributing";
+    public static final String DUNEDIN_DISTRIBUTING = "Dunedin Distributing";
+    public static final String KEY_WEST_DISTRIBUTING = "Key West Distributing";
+    
     public static final String BEER_1_UPC = "0631234200036";
     public static final String BEER_2_UPC = "0631234300019";
     public static final String BEER_3_UPC = "0083783375213";
+    
+    private final PasswordEncoder passwordEncoder;
 
     private final BreweryRepository breweryRepository;
     private final BeerRepository beerRepository;
     private final BeerInventoryRepository beerInventoryRepository;
     private final BeerOrderRepository beerOrderRepository;
     private final CustomerRepository customerRepository;
+    private final RoleRepository roleRepository;
+    private final UserRepository userRepository;
 
     @Override
     public void run(String... args) {
         loadBreweryData();
-        loadCustomerData();
+        loadTastingRoomData();
+        loadCustomers();
     }
 
-    private void loadCustomerData() {
+    private void loadTastingRoomData() {
         Customer tastingRoom = Customer.builder()
                 .customerName(TASTING_ROOM)
                 .apiKey(UUID.randomUUID())
@@ -121,5 +150,53 @@ public class DefaultBreweryLoader implements CommandLineRunner {
                     .build());
 
         }
+    }
+    
+    private void loadCustomers() {
+    	Role customerRole = roleRepository.findByName("CUSTOMER").orElseThrow();
+    	
+    	// Create customers
+    	Customer stPeteCustomer = createCustomer(ST_PETE_DISTRIBUTING);
+    	Customer dunedinCustomer = createCustomer(DUNEDIN_DISTRIBUTING);
+    	Customer keyWestCustomer = createCustomer(KEY_WEST_DISTRIBUTING);
+    	
+    	// Create user
+    	User stPeteUser = createUser("stpete", "password", stPeteCustomer, customerRole);
+    	User dunedinUser = createUser("dunedin", "password", dunedinCustomer, customerRole);
+    	User keyWestUser = createUser("keywest", "password", keyWestCustomer, customerRole);
+    	
+    	// Create order
+    	createOrder(stPeteCustomer);
+    	createOrder(dunedinCustomer);
+    	createOrder(keyWestCustomer);
+    	
+    	log.debug("Orders loaded: " + beerOrderRepository.count());
+    }
+    
+    private Customer createCustomer(String name) {
+    	return customerRepository.save(Customer.builder()
+    			.customerName(name)
+    			.apiKey(UUID.randomUUID())
+    			.build());
+    }
+    private User createUser(String name, String password, Customer customer, Role role) {
+    	return userRepository.save(User.builder()
+    			.username(name)
+    			.password(passwordEncoder.encode(password))
+    			.customer(customer)
+    			.role(role)
+    			.build());
+    }
+    private BeerOrder createOrder(Customer customer) {
+    	return beerOrderRepository.save(BeerOrder.builder()
+    			.customer(customer)
+    			.orderStatus(OrderStatusEnum.NEW)
+    			.beerOrderLines(Set.of(
+    					BeerOrderLine.builder()
+    					.beer(beerRepository.findByUpc(BEER_1_UPC))
+    					.orderQuantity(2)
+    					.build()
+    			))
+    			.build());
     }
 }

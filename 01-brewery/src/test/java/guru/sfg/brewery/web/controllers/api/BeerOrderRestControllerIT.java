@@ -10,16 +10,20 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import guru.sfg.brewery.bootstrap.DefaultBreweryLoader;
 import guru.sfg.brewery.domain.Beer;
+import guru.sfg.brewery.domain.BeerOrder;
 import guru.sfg.brewery.domain.Customer;
 import guru.sfg.brewery.repositories.BeerOrderRepository;
 import guru.sfg.brewery.repositories.BeerRepository;
@@ -33,155 +37,198 @@ public class BeerOrderRestControllerIT extends BaseIT {
 
 	public static final String API_ROOT = "/api/v1/customers/";
 
-    @Autowired
-    CustomerRepository customerRepository;
+	@Autowired
+	CustomerRepository customerRepository;
 
-    @Autowired
-    BeerOrderRepository beerOrderRepository;
+	@Autowired
+	BeerOrderRepository beerOrderRepository;
 
-    @Autowired
-    BeerRepository beerRepository;
+	@Autowired
+	BeerRepository beerRepository;
 
-    @Autowired
-    ObjectMapper objectMapper;
+	@Autowired
+	ObjectMapper objectMapper;
 
-    Customer stPeteCustomer;
-    Customer dunedinCustomer;
-    Customer keyWestCustomer;
-    List<Beer> loadedBeers;
+	Customer stPeteCustomer;
+	Customer dunedinCustomer;
+	Customer keyWestCustomer;
+	List<Beer> loadedBeers;
 
-    @BeforeEach
+	@BeforeEach
 	protected void setUp() {
-    	super.setUp();
-        stPeteCustomer = customerRepository.findAllByCustomerName(DefaultBreweryLoader.ST_PETE_DISTRIBUTING).orElseThrow();
-        dunedinCustomer = customerRepository.findAllByCustomerName(DefaultBreweryLoader.DUNEDIN_DISTRIBUTING).orElseThrow();
-        keyWestCustomer = customerRepository.findAllByCustomerName(DefaultBreweryLoader.KEY_WEST_DISTRIBUTING).orElseThrow();
-        loadedBeers = beerRepository.findAll();
-    }
+		super.setUp();
+		stPeteCustomer = customerRepository.findAllByCustomerName(DefaultBreweryLoader.ST_PETE_DISTRIBUTING).orElseThrow();
+		dunedinCustomer = customerRepository.findAllByCustomerName(DefaultBreweryLoader.DUNEDIN_DISTRIBUTING).orElseThrow();
+		keyWestCustomer = customerRepository.findAllByCustomerName(DefaultBreweryLoader.KEY_WEST_DISTRIBUTING).orElseThrow();
+		loadedBeers = beerRepository.findAll();
+	}
 
-//cant use nested tests bug - https://github.com/spring-projects/spring-security/issues/8793
-//    @DisplayName("Create Test")
-//    @Nested
-//    class createOrderTests {
+	@DisplayName("Create Test")
+	@Nested
+	class CreateOrderTests {
 
+		@Test
+		void notAuth() throws Exception {
+			BeerOrderDto beerOrderDto = buildOrderDto(stPeteCustomer, loadedBeers.get(0).getId());
 
-	    @Test
-	    void createOrderNotAuth() throws Exception {
-	        BeerOrderDto beerOrderDto = buildOrderDto(stPeteCustomer, loadedBeers.get(0).getId());
+			mockMvc.perform(post(API_ROOT + stPeteCustomer.getId() + "/orders")
+				.accept(MediaType.APPLICATION_JSON)
+				.characterEncoding("UTF-8")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(beerOrderDto))
+			).andExpect(status().isUnauthorized());
+		}
+
+		@WithUserDetails(value = "spring", userDetailsServiceBeanName = "")
+		@Test
+		void userAdmin() throws Exception {
+			BeerOrderDto beerOrderDto = buildOrderDto(stPeteCustomer, loadedBeers.get(0).getId());
+
+			mockMvc.perform(post(API_ROOT + stPeteCustomer.getId() + "/orders")
+				.accept(MediaType.APPLICATION_JSON)
+				.characterEncoding("UTF-8")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(beerOrderDto))
+			).andExpect(status().isCreated());
+		}
+
+		@WithUserDetails(value = DefaultBreweryLoader.STPETE_USER)
+		@Test
+		void userAuthCustomer() throws Exception {
+			BeerOrderDto beerOrderDto = buildOrderDto(stPeteCustomer, loadedBeers.get(0).getId());
+
+			mockMvc.perform(post(API_ROOT + stPeteCustomer.getId() + "/orders")
+				.accept(MediaType.APPLICATION_JSON)
+				.characterEncoding("UTF-8")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(beerOrderDto))
+			).andExpect(status().isCreated());
+		}
+
+		@WithUserDetails(value = DefaultBreweryLoader.KEYWEST_USER)
+		@Test
+		void userNOTAuthCustomer() throws Exception {
+			BeerOrderDto beerOrderDto = buildOrderDto(stPeteCustomer, loadedBeers.get(0).getId());
+
+			mockMvc.perform(post(API_ROOT + stPeteCustomer.getId() + "/orders")
+				.accept(MediaType.APPLICATION_JSON)
+				.characterEncoding("UTF-8")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(beerOrderDto))
+			).andExpect(status().isForbidden());
+		}
+
+	}
+
+	@DisplayName("List Test")
+	@Nested
+	class ListOrderTests {
+		@Test
+		void notAuth() throws Exception {
+			mockMvc.perform(get(API_ROOT + stPeteCustomer.getId() + "/orders"))
+				.andExpect(status().isUnauthorized());
+		}
 	
-	        mockMvc.perform(post(API_ROOT + stPeteCustomer.getId() + "/orders")
-	                .accept(MediaType.APPLICATION_JSON)
-	                .characterEncoding("UTF-8")
-	                .contentType(MediaType.APPLICATION_JSON)
-	                .content(objectMapper.writeValueAsString(beerOrderDto)))
-	                .andExpect(status().isUnauthorized());
-	    }
+		@WithUserDetails(value = "spring")
+		@Test
+		void adminAuth() throws Exception {
+			mockMvc.perform(get(API_ROOT + stPeteCustomer.getId() + "/orders"))
+				.andExpect(status().isOk());
+		}
 	
-	    @WithUserDetails("spring")
-	    @Test
-	    void createOrderUserAdmin() throws Exception {
-	        BeerOrderDto beerOrderDto = buildOrderDto(stPeteCustomer, loadedBeers.get(0).getId());
+		@WithUserDetails(value = DefaultBreweryLoader.STPETE_USER)
+		@Test
+		void customerAuth() throws Exception {
+			mockMvc.perform(get(API_ROOT + stPeteCustomer.getId() + "/orders"))
+				.andExpect(status().isOk());
+		}
 	
-	        mockMvc.perform(post(API_ROOT + stPeteCustomer.getId() + "/orders")
-	                .accept(MediaType.APPLICATION_JSON)
-	                .characterEncoding("UTF-8")
-	                .contentType(MediaType.APPLICATION_JSON)
-	                .content(objectMapper.writeValueAsString(beerOrderDto)))
-	                .andExpect(status().isCreated());
-	    }
+		@WithUserDetails(value = DefaultBreweryLoader.DUNEDIN_USER)
+		@Test
+		void customerNOTAuth() throws Exception {
+			mockMvc.perform(get(API_ROOT + stPeteCustomer.getId() + "/orders"))
+				.andExpect(status().isForbidden());
+		}
 	
-	    @WithUserDetails(DefaultBreweryLoader.STPETE_USER)
-	    @Test
-	    void createOrderUserAuthCustomer() throws Exception {
-	        BeerOrderDto beerOrderDto = buildOrderDto(stPeteCustomer, loadedBeers.get(0).getId());
+		@Test
+		void noAuth() throws Exception {
+			mockMvc.perform(get(API_ROOT + stPeteCustomer.getId() + "/orders"))
+				.andExpect(status().isUnauthorized());
+		}
+	}
 	
-	        mockMvc.perform(post(API_ROOT + stPeteCustomer.getId() + "/orders")
-	                .accept(MediaType.APPLICATION_JSON)
-	                .characterEncoding("UTF-8")
-	                .contentType(MediaType.APPLICATION_JSON)
-	                .content(objectMapper.writeValueAsString(beerOrderDto)))
-	                .andExpect(status().isCreated());
-	    }
+	@DisplayName("Get Test")
+	@Nested
+	@Transactional
+	class GetOrderTests {
+		@Test
+		void notAuth() throws Exception {
+			BeerOrder beerOrder = stPeteCustomer.getBeerOrders().stream().findFirst().orElseThrow();
+			mockMvc.perform(get(API_ROOT + stPeteCustomer.getId() + "/orders/" + beerOrder.getId()))
+				.andExpect(status().isUnauthorized());
+		}
 	
-	    @WithUserDetails(DefaultBreweryLoader.KEYWEST_USER)
-	    @Test
-	    void createOrderUserNOTAuthCustomer() throws Exception {
-	        BeerOrderDto beerOrderDto = buildOrderDto(stPeteCustomer, loadedBeers.get(0).getId());
+		@WithUserDetails(value = "spring")
+		@Test
+		void adminAuth() throws Exception {
+			BeerOrder beerOrder = stPeteCustomer.getBeerOrders().stream().findFirst().orElseThrow();
+			mockMvc.perform(get(API_ROOT + stPeteCustomer.getId() + "/orders/" + beerOrder.getId()))
+				.andExpect(status().isOk());
+		}
 	
-	        mockMvc.perform(post(API_ROOT + stPeteCustomer.getId() + "/orders")
-	                .accept(MediaType.APPLICATION_JSON)
-	                .characterEncoding("UTF-8")
-	                .contentType(MediaType.APPLICATION_JSON)
-	                .content(objectMapper.writeValueAsString(beerOrderDto)))
-	                .andExpect(status().isForbidden());
-	    }
+		@WithUserDetails(value = DefaultBreweryLoader.STPETE_USER)
+		@Test
+		void customerAuth() throws Exception {
+			BeerOrder beerOrder = stPeteCustomer.getBeerOrders().stream().findFirst().orElseThrow();
+			mockMvc.perform(get(API_ROOT + stPeteCustomer.getId() + "/orders/" + beerOrder.getId()))
+				.andExpect(status().isOk());
+		}
+	
+		@WithUserDetails(value = DefaultBreweryLoader.DUNEDIN_USER)
+		@Test
+		void customerNOTAuth() throws Exception {
+			BeerOrder beerOrder = stPeteCustomer.getBeerOrders().stream().findFirst().orElseThrow();
+			mockMvc.perform(get(API_ROOT + stPeteCustomer.getId() + "/orders/" + beerOrder.getId()))
+				.andExpect(status().isForbidden());
+		}
+	
+		@Test
+		void noAuth() throws Exception {
+			BeerOrder beerOrder = stPeteCustomer.getBeerOrders().stream().findFirst().orElseThrow();
+			mockMvc.perform(get(API_ROOT + stPeteCustomer.getId() + "/orders/" + beerOrder.getId()))
+				.andExpect(status().isUnauthorized());
+		}
+	}
 
-////     }
-    @Test
-    void listOrdersNotAuth() throws Exception {
-        mockMvc.perform(get(API_ROOT + stPeteCustomer.getId() + "/orders"))
-                .andExpect(status().isUnauthorized());
-    }
+	@DisplayName("Pickup Test")
+	@Nested
+	class PickupOrderTests {
+		@Disabled
+		@Test
+		void pickUpOrderNotAuth() {
+		}
+	
+		@Disabled
+		@Test
+		void pickUpOrderNotAdminUser() {
+		}
+	
+		@Disabled
+		@Test
+		void pickUpOrderCustomerUserAUTH() {
+		}
+	
+		@Disabled
+		@Test
+		void pickUpOrderCustomerUserNOT_AUTH() {
+		}
+	}
 
-    @WithUserDetails(value = "spring")
-    @Test
-    void listOrdersAdminAuth() throws Exception {
-        mockMvc.perform(get(API_ROOT + stPeteCustomer.getId() + "/orders"))
-                .andExpect(status().isOk());
-    }
+	private BeerOrderDto buildOrderDto(Customer customer, UUID beerId) {
+		List<BeerOrderLineDto> orderLines = Arrays
+				.asList(BeerOrderLineDto.builder().id(UUID.randomUUID()).beerId(beerId).orderQuantity(5).build());
 
-    @WithUserDetails(value = DefaultBreweryLoader.STPETE_USER)
-    @Test
-    void listOrdersCustomerAuth() throws Exception {
-        mockMvc.perform(get(API_ROOT + stPeteCustomer.getId() + "/orders"))
-                .andExpect(status().isOk());
-    }
-
-    @WithUserDetails(value = DefaultBreweryLoader.DUNEDIN_USER)
-    @Test
-    void listOrdersCustomerNOTAuth() throws Exception {
-        mockMvc.perform(get(API_ROOT + stPeteCustomer.getId() + "/orders"))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
-    void listOrdersNoAuth() throws Exception {
-        mockMvc.perform(get(API_ROOT + stPeteCustomer.getId()))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Disabled
-    @Test
-    void pickUpOrderNotAuth() {
-    }
-
-    @Disabled
-    @Test
-    void pickUpOrderNotAdminUser() {
-    }
-
-    @Disabled
-    @Test
-    void pickUpOrderCustomerUserAUTH() {
-    }
-
-    @Disabled
-    @Test
-    void pickUpOrderCustomerUserNOT_AUTH() {
-    }
-
-    private BeerOrderDto buildOrderDto(Customer customer, UUID beerId) {
-        List<BeerOrderLineDto> orderLines = Arrays.asList(BeerOrderLineDto.builder()
-                .id(UUID.randomUUID())
-                .beerId(beerId)
-                .orderQuantity(5)
-                .build());
-
-        return BeerOrderDto.builder()
-                .customerId(customer.getId())
-                .customerRef("123")
-                .orderStatusCallbackUrl("http://example.com")
-                .beerOrderLines(orderLines)
-                .build();
-    }
+		return BeerOrderDto.builder().customerId(customer.getId()).customerRef("123")
+				.orderStatusCallbackUrl("http://example.com").beerOrderLines(orderLines).build();
+	}
 }

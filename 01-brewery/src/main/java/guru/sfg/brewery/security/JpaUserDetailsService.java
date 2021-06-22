@@ -1,5 +1,6 @@
 package guru.sfg.brewery.security;
 
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Service
 @Slf4j
+@Primary
 public class JpaUserDetailsService implements UserDetailsService {
 	private final UserRepository userRepository;
 

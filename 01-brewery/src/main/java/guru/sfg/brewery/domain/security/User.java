@@ -12,12 +12,14 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 
 import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import guru.sfg.brewery.domain.Customer;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -47,6 +49,9 @@ public class User implements UserDetails, CredentialsContainer {
 		joinColumns = @JoinColumn(name = "USER_ID", referencedColumnName = "ID"),
 		inverseJoinColumns = @JoinColumn(name = "ROLE_ID", referencedColumnName = "ID"))
 	private Set<Role> roles;
+	
+	@ManyToOne(fetch = FetchType.EAGER)
+	private Customer customer;
 
 	@Builder.Default
 	private Boolean accountNonExpired = Boolean.TRUE;

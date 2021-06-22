@@ -50,9 +50,9 @@ public class UserDataLoader implements CommandLineRunner {
 		addRole(Roles.ADMIN, BeerAuthorities.CREATE, BeerAuthorities.READ, BeerAuthorities.UPDATE, BeerAuthorities.DELETE,
 				BreweryAuthorities.CREATE, BreweryAuthorities.READ, BreweryAuthorities.UPDATE, BreweryAuthorities.DELETE,
 				CustomerAuthorities.CREATE, CustomerAuthorities.READ, CustomerAuthorities.UPDATE, CustomerAuthorities.DELETE,
-				BeerOrderAuthorities.CREATE, BeerOrderAuthorities.READ, BeerOrderAuthorities.UPDATE, BeerOrderAuthorities.DELETE);
+				BeerOrderAuthorities.CREATE, BeerOrderAuthorities.READ, BeerOrderAuthorities.UPDATE, BeerOrderAuthorities.DELETE, BeerOrderAuthorities.PICKUP);
 		addRole(Roles.CUSTOMER, BeerAuthorities.READ, CustomerAuthorities.READ, BreweryAuthorities.READ,
-				CustomerBeerOrderAuthorities.CREATE, CustomerBeerOrderAuthorities.READ, CustomerBeerOrderAuthorities.UPDATE, CustomerBeerOrderAuthorities.DELETE);
+				CustomerBeerOrderAuthorities.CREATE, CustomerBeerOrderAuthorities.READ, CustomerBeerOrderAuthorities.UPDATE, CustomerBeerOrderAuthorities.DELETE, CustomerBeerOrderAuthorities.PICKUP);
 		addRole(Roles.USER, BeerAuthorities.READ);
 		log.debug("Roles loaded: " + roleRepository.count());
 		
@@ -139,14 +139,14 @@ public class UserDataLoader implements CommandLineRunner {
 		}
 	}
 	private static enum BeerOrderAuthorities implements ValuedEnum {
-		CREATE, UPDATE, READ, DELETE;
+		CREATE, UPDATE, READ, DELETE, PICKUP;
 		@Override
 		public String type() {
 			return "order";
 		}
 	}
 	private static enum CustomerBeerOrderAuthorities implements ValuedEnum {
-		CREATE, UPDATE, READ, DELETE;
+		CREATE, UPDATE, READ, DELETE, PICKUP;
 		@Override
 		public String type() {
 			return "customer.order";

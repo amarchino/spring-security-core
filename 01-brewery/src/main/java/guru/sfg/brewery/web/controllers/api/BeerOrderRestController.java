@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import guru.sfg.brewery.security.perms.beerorder.BeerOrderCreatePermission;
 import guru.sfg.brewery.security.perms.beerorder.BeerOrderReadPermission;
+import guru.sfg.brewery.security.perms.beerorder.BeerOrderPickupPermission;
 import guru.sfg.brewery.services.BeerOrderService;
 import guru.sfg.brewery.web.model.BeerOrderDto;
 import guru.sfg.brewery.web.model.BeerOrderPagedList;
@@ -64,6 +65,7 @@ public class BeerOrderRestController {
 		return beerOrderService.getOrderById(customerId, orderId);
 	}
 
+	@BeerOrderPickupPermission
 	@PutMapping("/orders/{orderId}/pickup")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void pickupOrder(@PathVariable("customerId") UUID customerId, @PathVariable("orderId") UUID orderId) {

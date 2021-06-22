@@ -50,7 +50,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		http.addFilterBefore(restHeaderAuthFilter(authenticationManager()), UsernamePasswordAuthenticationFilter.class);
 		http.addFilterBefore(restUrlParamAuthFilter(authenticationManager()), UsernamePasswordAuthenticationFilter.class);
 		
-		http.csrf().disable();
+		http.csrf().ignoringAntMatchers("/h2-console/**", "/api/**");
 		http.authorizeRequests(requests ->
 			requests
 				.antMatchers("/h2-console/**").permitAll() // do not use in production

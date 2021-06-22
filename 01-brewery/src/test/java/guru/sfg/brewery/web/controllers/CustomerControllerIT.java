@@ -1,5 +1,6 @@
 package guru.sfg.brewery.web.controllers;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -49,6 +50,7 @@ public class CustomerControllerIT extends BaseIT {
         void processCreationForm() throws Exception{
             mockMvc.perform(post("/customers/new")
                     .param("customerName", "Foo Customer")
+                    .with(csrf())
                     .with(httpBasic("spring", "guru")))
                     .andExpect(status().is3xxRedirection());
         }
@@ -58,6 +60,7 @@ public class CustomerControllerIT extends BaseIT {
         @MethodSource("guru.sfg.brewery.web.controllers.CustomerControllerIT#getStreamNotAdmin")
         void processCreationFormNOTAUTH(String user, String pwd) throws Exception{
             mockMvc.perform(post("/customers/new")
+            		.with(csrf())
                     .param("customerName", "Foo Customer2")
                     .with(httpBasic(user, pwd)))
                     .andExpect(status().isForbidden());
@@ -66,6 +69,7 @@ public class CustomerControllerIT extends BaseIT {
         @Test
         void processCreationFormNOAUTH() throws Exception{
             mockMvc.perform(post("/customers/new")
+            		.with(csrf())
                     .param("customerName", "Foo Customer"))
                     .andExpect(status().isUnauthorized());
         }

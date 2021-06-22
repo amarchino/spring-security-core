@@ -33,7 +33,7 @@ import guru.sfg.brewery.web.model.BeerOrderDto;
 import guru.sfg.brewery.web.model.BeerOrderLineDto;
 
 @SpringBootTest
-public class BeerOrderRestControllerIT extends BaseIT {
+class BeerOrderRestControllerIT extends BaseIT {
 
 	public static final String API_ROOT = "/api/v1/customers/";
 

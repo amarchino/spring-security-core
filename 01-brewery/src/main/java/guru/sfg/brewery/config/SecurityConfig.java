@@ -67,6 +67,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.defaultSuccessUrl("/")
 				.failureUrl("/?error")
 		);
+		http.rememberMe(rememberMeConfigurer -> 
+			rememberMeConfigurer
+				.key("sfg-key")
+				.userDetailsService(userDetailsService())
+		);
 		http.logout(logoutConfigurer ->
 			logoutConfigurer
 				.logoutRequestMatcher(new AntPathRequestMatcher("/logout", HttpMethod.GET.name()))
@@ -101,24 +106,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.roles("USER");
 		auth.inMemoryAuthentication().withUser("scott").password(encoder.encode("tiger")).roles("CUSTOMER");
 	}
-	
-//	@Override
-//	@Bean
-//	protected UserDetailsService userDetailsService() {
-//		
-//		
-//		UserDetails admin = User.withDefaultPasswordEncoder()
-//				.username("spring")
-//				.password("guru")
-//				.roles("ADMIN")
-//				.build();
-//		UserDetails user = User.withDefaultPasswordEncoder()
-//				.username("user")
-//				.password("password")
-//				.roles("USER")
-//				.build();
-//		return new InMemoryUserDetailsManager(admin, user);
-//	}
 	
 	@Bean
 	PasswordEncoder passwordEncoder() {

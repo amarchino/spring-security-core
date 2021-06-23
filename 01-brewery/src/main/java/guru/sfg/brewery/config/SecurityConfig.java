@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.data.repository.query.SecurityEvaluationContextExtension;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import guru.sfg.brewery.repositories.security.UserRepository;
@@ -29,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	private final UserRepository userRepository;
+	private final PersistentTokenRepository persistentTokenRepository;
 	
 	private RestHeaderAuthFilter restHeaderAuthFilter(AuthenticationManager authenticationManager) {
 		RestHeaderAuthFilter filter = new RestHeaderAuthFilter(new AntPathRequestMatcher("/**"));
@@ -69,9 +71,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		);
 		http.rememberMe(rememberMeConfigurer -> 
 			rememberMeConfigurer
-				.key("sfg-key")
-				.userDetailsService(userDetailsService())
+//				.key("sfg-key")
+//				.userDetailsService(userDetailsService())
+				.tokenRepository(persistentTokenRepository)
 		);
+		
 		http.logout(logoutConfigurer ->
 			logoutConfigurer
 				.logoutRequestMatcher(new AntPathRequestMatcher("/logout", HttpMethod.GET.name()))

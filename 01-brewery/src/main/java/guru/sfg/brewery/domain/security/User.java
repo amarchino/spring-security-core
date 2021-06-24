@@ -1,9 +1,11 @@
 package guru.sfg.brewery.domain.security;
 
+import java.sql.Timestamp;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -14,6 +16,8 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -61,6 +65,13 @@ public class User implements UserDetails, CredentialsContainer {
 	private Boolean credentialsNonExpired = Boolean.TRUE;
 	@Builder.Default
 	private Boolean enabled = Boolean.TRUE;
+	
+	@CreationTimestamp
+	@Column(updatable = false)
+	private Timestamp creationDate;
+	
+	@UpdateTimestamp
+	private Timestamp lastModifiedDate;
 	
 	public Set<GrantedAuthority> getAuthorities() {
 		return this.roles

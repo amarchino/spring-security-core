@@ -15,6 +15,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -69,9 +70,15 @@ public class User implements UserDetails, CredentialsContainer {
 	@CreationTimestamp
 	@Column(updatable = false)
 	private Timestamp creationDate;
-	
 	@UpdateTimestamp
 	private Timestamp lastModifiedDate;
+	
+	@Builder.Default
+	private Boolean userGoogle2Fa = Boolean.FALSE;
+	private String google2FaSecret;
+	@Builder.Default
+	@Transient
+	private Boolean google2FaRequired = Boolean.TRUE;
 	
 	public Set<GrantedAuthority> getAuthorities() {
 		return this.roles

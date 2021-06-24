@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
@@ -16,23 +17,25 @@ import com.warrenstrange.googleauth.GoogleAuthenticator;
 import com.warrenstrange.googleauth.GoogleAuthenticatorConfig;
 import com.warrenstrange.googleauth.ICredentialRepository;
 
+import guru.sfg.brewery.security.SfgPasswordEncoderFactory;
+
 @Configuration
 public class SecurityBeans {
 
 	@Bean
-	public PersistentTokenRepository persistentTokenRepository(DataSource dataSource) {
+	PersistentTokenRepository persistentTokenRepository(DataSource dataSource) {
 		JdbcTokenRepositoryImpl jdbcTokenRepositoryImpl = new JdbcTokenRepositoryImpl();
 		jdbcTokenRepositoryImpl.setDataSource(dataSource);
 		return jdbcTokenRepositoryImpl;
 	}
 	
 	@Bean
-	public AuthenticationEventPublisher authenticationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+	AuthenticationEventPublisher authenticationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
 		return new DefaultAuthenticationEventPublisher(applicationEventPublisher);
 	}
 	
 	@Bean
-	public GoogleAuthenticator googleAuthenticator(ICredentialRepository iCredentialRepository) {
+	GoogleAuthenticator googleAuthenticator(ICredentialRepository iCredentialRepository) {
 		GoogleAuthenticatorConfig.GoogleAuthenticatorConfigBuilder configBuilder = new GoogleAuthenticatorConfig.GoogleAuthenticatorConfigBuilder();
 		configBuilder
 			.setTimeStepSizeInMillis(TimeUnit.SECONDS.toMillis(60))
@@ -41,5 +44,10 @@ public class SecurityBeans {
 		GoogleAuthenticator googleAuthenticator = new GoogleAuthenticator(configBuilder.build());
 		googleAuthenticator.setCredentialRepository(iCredentialRepository);
 		return googleAuthenticator;
+	}
+	
+	@Bean
+	PasswordEncoder passwordEncoder() {
+		return SfgPasswordEncoderFactory.createDelegatingPasswordEncoder();
 	}
 }

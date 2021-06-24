@@ -1,13 +1,10 @@
 package guru.sfg.brewery.config;
 
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,19 +18,19 @@ import guru.sfg.brewery.repositories.security.UserRepository;
 import guru.sfg.brewery.security.JpaUserDetailsService;
 import guru.sfg.brewery.security.RestHeaderAuthFilter;
 import guru.sfg.brewery.security.RestUrlParamAuthFilter;
-import guru.sfg.brewery.security.SfgPasswordEncoderFactory;
 import guru.sfg.brewery.security.google.Google2FaFilter;
 import lombok.RequiredArgsConstructor;
 
-@Configuration
-@EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+//@Configuration
+//@EnableWebSecurity
+//@EnableGlobalMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	private final UserRepository userRepository;
 	private final PersistentTokenRepository persistentTokenRepository;
 	private final Google2FaFilter google2FaFilter;
+	private final PasswordEncoder passwordEncoder;
 	
 	private RestHeaderAuthFilter restHeaderAuthFilter(AuthenticationManager authenticationManager) {
 		RestHeaderAuthFilter filter = new RestHeaderAuthFilter(new AntPathRequestMatcher("/**"));
@@ -100,7 +97,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		PasswordEncoder encoder = passwordEncoder();
 		auth.userDetailsService(userDetailsService());
 		auth.inMemoryAuthentication()
 			.withUser("spring")
@@ -112,12 +108,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			//.password(encoder.encode("password"))
 			.password("{noop}password")
 			.roles("USER");
-		auth.inMemoryAuthentication().withUser("scott").password(encoder.encode("tiger")).roles("CUSTOMER");
-	}
-	
-	@Bean
-	PasswordEncoder passwordEncoder() {
-		return SfgPasswordEncoderFactory.createDelegatingPasswordEncoder();
+		auth.inMemoryAuthentication().withUser("scott").password(passwordEncoder.encode("tiger")).roles("CUSTOMER");
 	}
 	
 }

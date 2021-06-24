@@ -74,7 +74,7 @@ public class User implements UserDetails, CredentialsContainer {
 	private Timestamp lastModifiedDate;
 	
 	@Builder.Default
-	private Boolean userGoogle2Fa = Boolean.FALSE;
+	private Boolean useGoogle2Fa = Boolean.FALSE;
 	private String google2FaSecret;
 	@Builder.Default
 	@Transient

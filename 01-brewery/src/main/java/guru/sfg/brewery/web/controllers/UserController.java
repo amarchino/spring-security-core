@@ -44,7 +44,7 @@ public class UserController {
 			return "user/register2fa";
 		}
 		User savedUser = userRepository.findById(user.getId()).orElseThrow();
-		savedUser.setUserGoogle2Fa(Boolean.TRUE);
+		savedUser.setUseGoogle2Fa(Boolean.TRUE);
 		userRepository.save(savedUser);
 		return "index";
 	}

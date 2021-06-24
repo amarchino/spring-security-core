@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.data.repository.query.SecurityEvaluationContextExtension;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import guru.sfg.brewery.repositories.security.UserRepository;
@@ -21,6 +22,7 @@ import guru.sfg.brewery.security.JpaUserDetailsService;
 import guru.sfg.brewery.security.RestHeaderAuthFilter;
 import guru.sfg.brewery.security.RestUrlParamAuthFilter;
 import guru.sfg.brewery.security.SfgPasswordEncoderFactory;
+import guru.sfg.brewery.security.google.Google2FaFilter;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -31,6 +33,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	private final UserRepository userRepository;
 	private final PersistentTokenRepository persistentTokenRepository;
+	private final Google2FaFilter google2FaFilter;
 	
 	private RestHeaderAuthFilter restHeaderAuthFilter(AuthenticationManager authenticationManager) {
 		RestHeaderAuthFilter filter = new RestHeaderAuthFilter(new AntPathRequestMatcher("/**"));
@@ -52,32 +55,33 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http.addFilterBefore(restHeaderAuthFilter(authenticationManager()), UsernamePasswordAuthenticationFilter.class);
 		http.addFilterBefore(restUrlParamAuthFilter(authenticationManager()), UsernamePasswordAuthenticationFilter.class);
+		http.addFilterBefore(google2FaFilter, SessionManagementFilter.class);
 		
 		http.csrf().ignoringAntMatchers("/h2-console/**", "/api/**");
-		http.authorizeRequests(requests ->
-			requests
+		http.authorizeRequests(authorizeRequestsCustomizer ->
+			authorizeRequestsCustomizer
 				.antMatchers("/h2-console/**").permitAll() // do not use in production
 				.antMatchers("/", "/webjars/**", "/login", "/resources/**").permitAll()
 				.anyRequest().authenticated()
 		);
 
-		http.formLogin(loginConfigurer ->
-			loginConfigurer
+		http.formLogin(formLoginCustomizer ->
+			formLoginCustomizer
 				.loginProcessingUrl("/login")
 				.loginPage("/").permitAll()
 				.successForwardUrl("/")
 				.defaultSuccessUrl("/")
 				.failureUrl("/?error")
 		);
-		http.rememberMe(rememberMeConfigurer -> 
-			rememberMeConfigurer
+		http.rememberMe(rememberMeCustomizer -> 
+			rememberMeCustomizer
 //				.key("sfg-key")
 //				.userDetailsService(userDetailsService())
 				.tokenRepository(persistentTokenRepository)
 		);
 		
-		http.logout(logoutConfigurer ->
-			logoutConfigurer
+		http.logout(logoutCustomizer ->
+			logoutCustomizer
 				.logoutRequestMatcher(new AntPathRequestMatcher("/logout", HttpMethod.GET.name()))
 				.logoutSuccessUrl("/?logout")
 				.permitAll()
@@ -85,7 +89,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 		http.httpBasic();
 		// H2 console config
-		http.headers().frameOptions(fo -> fo.sameOrigin());
+		http.headers().frameOptions(frameOptionsCustomizer -> frameOptionsCustomizer.sameOrigin());
 	}
 	
 	@Override

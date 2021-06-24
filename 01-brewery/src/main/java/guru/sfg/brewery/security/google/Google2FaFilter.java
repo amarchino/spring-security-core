@@ -17,15 +17,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 
 import guru.sfg.brewery.domain.security.User;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
-@RequiredArgsConstructor
 public class Google2FaFilter extends GenericFilterBean {
 	
 	private final AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
+	private final Google2FaFailureHandler google2FaFailureHandler = new Google2FaFailureHandler();
 	
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -39,7 +38,7 @@ public class Google2FaFilter extends GenericFilterBean {
 				User user = (User) authentication.getPrincipal();
 				if(user.getUseGoogle2Fa() && user.getGoogle2FaRequired()) {
 					log.debug("2FA required");
-					// TODO add failure handler
+					google2FaFailureHandler.onAuthenticationFailure(req, res, null);
 				}
 			}
 		}

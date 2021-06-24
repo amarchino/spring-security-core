@@ -9,9 +9,7 @@ import com.warrenstrange.googleauth.ICredentialRepository;
 import guru.sfg.brewery.domain.security.User;
 import guru.sfg.brewery.repositories.security.UserRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class GoogleCredentialRepository implements ICredentialRepository {

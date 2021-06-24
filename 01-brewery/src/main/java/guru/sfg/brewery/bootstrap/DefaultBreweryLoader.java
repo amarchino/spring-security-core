@@ -166,9 +166,9 @@ public class DefaultBreweryLoader implements CommandLineRunner {
     	Customer keyWestCustomer = createCustomer(KEY_WEST_DISTRIBUTING);
     	
     	// Create user
-    	User stPeteUser = createUser(STPETE_USER, "password", stPeteCustomer, customerRole);
-    	User dunedinUser = createUser(DUNEDIN_USER, "password", dunedinCustomer, customerRole);
-    	User keyWestUser = createUser(KEYWEST_USER, "password", keyWestCustomer, customerRole);
+    	createUser(STPETE_USER, "password", stPeteCustomer, customerRole);
+    	createUser(DUNEDIN_USER, "password", dunedinCustomer, customerRole);
+    	createUser(KEYWEST_USER, "password", keyWestCustomer, customerRole);
     	
     	// Create order
     	createOrder(stPeteCustomer);
